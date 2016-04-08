@@ -1,0 +1,41 @@
+# we need to define application rules
+application:
+  # set app-name
+  name: "app-name"
+  # set version fo current app
+  version: "v1.0.0"
+
+# we need to define git rules
+git:
+  # define git host (gitlab or github)
+  host: "gitlab"
+  # define git config for action
+  token:
+    encrypt: true
+    value : "123132fsfds454687894654654456464546"
+  repo:
+    url: "http://myrepo.git"
+
+# we need to define where we need to extract file
+extract:
+ # we need to define if we must erase content or not 
+ erase: true
+ path: "my/path/to"
+
+# we need to define which deploy process to use and it rules
+deploy:
+  # define deploy type (docker / pm2)
+  type: "pm2"
+  # pm2 rules
+  pm2:
+    name : "app-name"
+    restart:
+      enable: true
+      limit: "250M"
+    logs:
+      merge: true
+    node:
+      env: "staging"
+      port: 3000
+  # docker rules
+  docker:
