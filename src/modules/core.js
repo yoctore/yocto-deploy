@@ -1,9 +1,12 @@
 'use strict';
 
-var express = require('express');
-var logger  = require('yocto-logger');
-var Q       = require('q');
-var _       = require('lodash');
+var express           = require('express');
+var logger            = require('yocto-logger');
+var Q                 = require('q');
+var _                 = require('lodash');
+var morgan            = require('morgan');
+var fsStreamRotator   = require('file-stream-rotator');
+var bodyParser        = require('body-parser');
 
 /**
  * Default core class
@@ -22,7 +25,12 @@ function Core(l) {
    * internal express app for request
    */
   this.app    = express();
+  /**
+   * Default log path
+   */
+  this.logPath = process.env.NODE_DEPLOY_LOG_PATH || '/var/log';
 };
+
 
 /**
  * Default start method to manage setup and start action
@@ -33,6 +41,20 @@ Core.prototype.start = function () {
 
   // log bind message
   this.logger.info('[ Agent.Core.start ] - Process Binding route for routes hook ...');
+
+  // setup morgan log config
+  this.app.use(morgan('combined', { stream : fsStreamRotator.getStream({
+    date_format : 'YYYYMMDD',
+    filename    : [ this.logPath, 'deploy-access-%DATE%.log' ].join('/'),
+    frequency   : 'daily',
+    verbose     : false
+  })}));
+
+  // for parsing application/json
+  this.app.use(bodyParser.json());
+  // for parsing application/x-www-form-urlencoded
+  this.app.use(bodyParser.urlencoded({ extended: true }));
+
   // bind hook on app
   if (this.hook.bind(this.app)) {
     // define port
@@ -41,6 +63,9 @@ Core.prototype.start = function () {
     this.app.listen(port, function () {
       // log bind message
       this.logger.info([ '[ Agent.Core.start ] - Listenning on port :', port ].join(' '));
+      // log access log
+      this.logger.info([ '[ Agent.Core.start ] - Access are logged into ',
+                          this.logPath ].join( ''));
       // resolve
       deferred.resolve();
     }.bind(this));

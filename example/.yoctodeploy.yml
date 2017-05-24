@@ -37,5 +37,33 @@ deploy:
     node:
       env: "staging"
       port: 3000
+    extra:
+      reinstall: true
+      modules: [ 'pm2-monit', 'pm2-docker' ]
   # docker rules
   docker:
+    config:
+      version : '2'
+      services:
+        app:
+          build:
+            context: "my/context/path"
+            dockerfile: "my/dockefile/path"
+            args:
+              TEST_ARG_1: "my_args_1"
+              TEST_ARG_2: "my_args_2"
+          image: "my-image-name:my-image-version"
+          container_name: "my container name"
+          ports:
+            - 3002:3002
+          restart: "my restart policy"
+          user: "my docker user"
+          network_mode: "my network mode"
+          mem_limit: "my memory limit"
+          command: "my extra command"
+          volumes:
+            - "/myvolumes":/var/www/api-vindemia/logs:rw
+          security_opt: [ "apparmor:docker-default" ]
+    extra:
+      reinstall: true
+      modules: [ 'pm2-monit', 'pm2-docker' ]]

@@ -1,10 +1,6 @@
 'use strict';
 
 var logger  = require('yocto-logger');
-var core    = require('../src/')(logger);
+var core    = require('../src/')();
 
-core.start().then(function () {
-  
-}).catch(function (error) {
-  core.logger.error([ 'Cannot start app :', error ].join(' '));
-});
+core.start();
